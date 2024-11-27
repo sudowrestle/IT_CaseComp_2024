@@ -1,58 +1,44 @@
+import os
+import pandas
+import datetime
 from fastai.tabular.all import *
 from fastai.text.all import *
 from fastai.collab import *
 
 
-cfg = fastai_cfg()
-cfg.data, cfg.path('./Dummy Data'), fastai_path('./Dummy Data')
+local_path = os.path.dirname(__file__)
 
-path = untar_data(URLs.ADULT_SAMPLE, data='./Dummy Data')
-path.ls()
+df = pd.read_csv('Sanitized/BAR1Sanitized.csv', parse_dates=['EntryDate'])
 
-df = pd.read_csv(path/'adult.csv')
-df.head()
+cont_names = ['Material', 'Quantity', 'DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'DailyChange', 'AvgIncreaseOrDecrease']
+cat_names = ['Plant', 'PurchaseOrder', 'UnitofMeasure', 'EntryDate']
+y_names = 'Quantity'
 
-dls = TabularDataLoaders.from_csv(path/'adult.csv')
-df.head()
-
-dls = TabularDataLoaders.from_csv(
-    path/'adult.csv', 
-    path=path, 
-    y_names="salary",
-    cat_names = ['workclass', 'education', 'martial-status', 'occupation', 'relationship', 'race'],
-    cont_names = ['age', 'fnlwgt', 'education-num'],
-    procs = [Categorify, FillMissing, Normalize]
-)
+procs = [Categorify, FillMissing, Normalize]
 
 splits = RandomSplitter(valid_pct=0.2)(range_of(df))
-
-to = TabularPandas(
-    df,
-    procs=[Categorify, FillMissing, Normalize],
-    cat_names = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race'],
-    cont_names = ['age', 'fnlwgt', 'education-num'],
-    y_names = 'salary',
-    splits=splits
-)
-
-to.xs.iloc[:2]
+to = TabularPandas(df, procs, cat_names, cont_names, y_names, splits=splits)
 
 dls = to.dataloaders(bs=64)
 
-dls.show_batch()
+learn = tabular_learner(dls, metrics=rmse)
 
-learn = tabular_learner(dls, metrics=accuracy)
+learn.fit_one_cycle(5, 1e-2)
 
-learn.fit_one_cycle(1)
+tomorrow_sample = pd.DataFrame({
+    'Material': [1010003],
+    'Plant': ['BAR1'],
+    'EntryDate': [pd.to_datetime('2024-11-28')],
+    'DayOfWeek': [pd.to_datetime('2024-11-28').dayofweek],
+    'Month': [11],
+    'DayOfYear': [332],
+    'WeekOfYear': [48],
+    'IsWeekend': [0],  
+    'DailyChange': [0],
+    'AvgIncreaseOrDecrease': [0] 
+})
 
-learn.show_results()
+transformed_sample = to.transform(tomorrow_sample)
 
-row, clas, probs = learn.predict(df.iloc[0])
-row.show()
-clas, probs
-
-test_df = df.copy()
-test_df.drop(['salary'], axis=1, inplace=True)
-dl = learn.dls.test_dl(test_df)
-
-learn.get_preds(dl=dl)
+prediction = learn.predict(transformed_sample.iloc[0])
+print(f"Predicted Quantity for tomorrow: {prediction[0]}")

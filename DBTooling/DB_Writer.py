@@ -1,7 +1,10 @@
+import os
 import pandas as pd
 import psycopg2
 
-data_frame = pd.read_csv("C:\\Users\\AnthE\\Desktop\\Personal Projects\\IT_CaseComp_2024\\Dummy Data\\Ecommerce Order Dataset\\train\\df_Products.csv")
+rel_path = os.path.dirname(__file__)
+
+data_frame = pd.read_csv(rel_path+"/Dummy Data/BAR1History.csv")
 
 conn = psycopg2.connect(
     dbname="CentralRepo",
@@ -15,7 +18,7 @@ cursor = conn.cursor()
 
 print(data_frame.columns)
 
-table_name = "Products"
+table_name = "BAR1"
 columns = []
 for column in data_frame.columns:
     columns.append(f"{column} VARCHAR(240)")
