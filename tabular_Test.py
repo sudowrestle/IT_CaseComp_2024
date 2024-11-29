@@ -12,7 +12,7 @@ print(df.dtypes)
 print(df.info())
 print(df.isnull().sum())
 
-date = pd.to_datetime("2022-05-25")
+date = pd.to_datetime("2024-11-30")
 
 day_of_week = date.dayofweek
 month = date.month
@@ -26,7 +26,7 @@ prediction_df = pd.DataFrame(
     'Material': ['1010003'],
     'Plant': ['BAR1'],
     'UnitofMeasure': ['KG'],
-    'DebitCredit': ['H'],
+    'DebitCredit': ['S'],
     'DayOfWeek': [day_of_week],
     'Month': [month],
     'DayOfYear': [day_of_year],
@@ -38,21 +38,25 @@ columns_to_keep = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit', 'Quantit
 df = df[columns_to_keep]
 
 dls = TabularDataLoaders.from_df(df, path='./', y_names="Quantity", 
-    cat_names = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit', 'DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'IsWeekend'],
+    cat_names = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit'],
+    cont_names = ['DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'IsWeekend'],
     procs = [Categorify, FillMissing, Normalize])
 
-learn = tabular_learner(dls, metrics=rmse)
+learn = tabular_learner(dls, metrics=[rmse,mae])
 
-learn = load_learner(rel_path+'/PermaModel/TrainedExport.pkl')
+learn = load_learner(fname='PermaModel/TrainedExport.pkl')
 
 learn.dls = dls
+learn.load('TrainedWeights')
+learn.fit_one_cycle(15)
 
 
-learn.fit_one_cycle(20)
+learn.save('TrainedWeights')
+# learn.export('PermaModel/TrainedExport.pkl')
 
 learn.show_results(max_n=15)
 row, tensorVal, probs = learn.predict(prediction_df.iloc[0])
-print(f"Prediction quantity is: {tensorVal.item()}")
+print(f"Prediction quantity for {datetime.date(date)} is: {tensorVal.item()}")
 
 
 
