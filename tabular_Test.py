@@ -12,7 +12,7 @@ print(df.dtypes)
 print(df.info())
 print(df.isnull().sum())
 
-date = pd.to_datetime("2024-11-30")
+date = pd.to_datetime("2022-09-09")
 
 day_of_week = date.dayofweek
 month = date.month
@@ -44,15 +44,30 @@ dls = TabularDataLoaders.from_df(df, path='./', y_names="Quantity",
 
 learn = tabular_learner(dls, metrics=[rmse,mae])
 
-learn = load_learner(fname='PermaModel/TrainedExport.pkl')
+demoMode = input().lower()
+
+if demoMode == "demo2" or demoMode == "demo3":
+    learn = load_learner(fname='PermaModel/TrainedExport.pkl')
 
 learn.dls = dls
-learn.load('TrainedWeights')
-learn.fit_one_cycle(15)
+
+if demoMode == "demo3":
+    learn.load('TrainedWeights')
+
+if demoMode == "demo1":
+    learn.fit_one_cycle(5)
+
+if demoMode == "demo2":
+    learn.fit_one_cycle(100)
+
+if demoMode == "demo2" or demoMode == "demo3":
+    learn.save('temp')
 
 
-learn.save('TrainedWeights')
-# learn.export('PermaModel/TrainedExport.pkl')
+exportInput = input("Export model? ").lower()
+
+if exportInput == "y":
+    learn.export('PermaModel/TrainedExport.pkl')
 
 learn.show_results(max_n=15)
 row, tensorVal, probs = learn.predict(prediction_df.iloc[0])
