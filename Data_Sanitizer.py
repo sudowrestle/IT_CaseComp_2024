@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 df = pd.read_csv('./Dummy Data/BAR1History.csv')
 
@@ -8,6 +9,7 @@ df['Plant'] = 'BAR1'
 
 # df['Quantity'] = df['Quantity'].str.replace(',', '').replace('"','').astype(float)
 
+df['Quantity'] = np.log1p(df['Quantity'])
 
 df['EntryDate'] = pd.to_datetime(df['EntryDate'], format='%Y-%m-%d')
 

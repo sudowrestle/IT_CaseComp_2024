@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from fastai.text.all import *
 from fastai.collab import *
 from fastai.tabular.all import *
@@ -38,40 +39,36 @@ columns_to_keep = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit', 'Quantit
 df = df[columns_to_keep]
 
 dls = TabularDataLoaders.from_df(df, path='./', y_names="Quantity", 
-    cat_names = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit'],
+    cat_names = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit',],
     cont_names = ['DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'IsWeekend'],
-    procs = [Categorify, FillMissing, Normalize])
+    procs = [Categorify, FillMissing, Normalize]
+    )
 
-learn = tabular_learner(dls, metrics=[rmse,mae])
+learn = tabular_learner(dls, metrics=[rmse,mae], cbs=[ShowGraphCallback(),CSVLogger()])
 
 demoMode = input().lower()
 
-if demoMode == "demo2" or demoMode == "demo3":
-    learn = load_learner(fname='PermaModel/TrainedExport.pkl')
+# if demoMode == "demo2" or demoMode == "demo3":
+#     learn = load_learner(fname='PermaModel/TrainedExport.pkl')
+#     learn.cbs = [ShowGraphCallback(), CSVLogger()]
+#     learn.metrics = [rmse, mae]
 
 learn.dls = dls
 
-if demoMode == "demo3":
-    learn.load('TrainedWeights')
-
 if demoMode == "demo1":
-    learn.fit_one_cycle(5)
+    learn.fit_one_cycle(2)
 
 if demoMode == "demo2":
-    learn.fit_one_cycle(100)
+    learn.fit_one_cycle(15)
 
-if demoMode == "demo2" or demoMode == "demo3":
+if demoMode == "demo3":
+    learn.fit_one_cycle(10)
     learn.save('temp')
-
-
-exportInput = input("Export model? ").lower()
-
-if exportInput == "y":
     learn.export('PermaModel/TrainedExport.pkl')
 
-learn.show_results(max_n=15)
+learn.show_results(max_n=1000)
 row, tensorVal, probs = learn.predict(prediction_df.iloc[0])
-print(f"Prediction quantity for {datetime.date(date)} is: {tensorVal.item()}")
+print(f"Prediction quantity for {datetime.date(date)} is: {np.expm1(tensorVal.item())}")
 
 
 
