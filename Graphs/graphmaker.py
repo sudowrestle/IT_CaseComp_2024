@@ -10,9 +10,6 @@ df = pd.DataFrame(data)
 
 sns.set_theme()
 
-sns.relplot(
-    data=df,
-    x="Quantity", y="Quantity_pred", hue="Prediction"
-)
+sns.relplot(data=df, x="Quantity", y="Quantity_pred", hue="Prediction")
 
 plt.show()

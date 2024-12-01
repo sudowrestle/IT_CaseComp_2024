@@ -56,7 +56,7 @@ demoMode = input().lower()
 learn.dls = dls
 
 if demoMode == "demo1":
-    learn.fit_one_cycle(2)
+    learn.fit_one_cycle(3)
 
 if demoMode == "demo2":
     learn.fit_one_cycle(15)
