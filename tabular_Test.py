@@ -48,11 +48,6 @@ learn = tabular_learner(dls, metrics=[rmse,mae], cbs=[ShowGraphCallback(),CSVLog
 
 demoMode = input().lower()
 
-# if demoMode == "demo2" or demoMode == "demo3":
-#     learn = load_learner(fname='PermaModel/TrainedExport.pkl')
-#     learn.cbs = [ShowGraphCallback(), CSVLogger()]
-#     learn.metrics = [rmse, mae]
-
 learn.dls = dls
 
 if demoMode == "demo1":
@@ -62,7 +57,7 @@ if demoMode == "demo2":
     learn.fit_one_cycle(15)
 
 if demoMode == "demo3":
-    learn.fit_one_cycle(10)
+    learn.fit_one_cycle(100)
     learn.save('temp')
     learn.export('PermaModel/TrainedExport.pkl')
 
