@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+rel_path = os.path.dirname(__file__)
 
-data = pd.read_csv('Graphs/ManyEpochs.csv')
+data = pd.read_csv(rel_path+'\\ManyEpochs.csv')
 
 df = pd.DataFrame(data)
 

@@ -61,7 +61,7 @@ if demoMode == "demo3":
     learn.save('temp')
     learn.export('PermaModel/TrainedExport.pkl')
 
-learn.show_results(max_n=1000)
+learn.show_results(max_n=64)
 row, tensorVal, probs = learn.predict(prediction_df.iloc[0])
 print(f"Prediction quantity for {datetime.date(date)} is: {np.expm1(tensorVal.item())}")
 
