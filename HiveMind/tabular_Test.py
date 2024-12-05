@@ -13,7 +13,7 @@ print(df.dtypes)
 print(df.info())
 print(df.isnull().sum())
 
-date = pd.to_datetime("2022-09-09")
+date = pd.to_datetime("2024-12-04")
 
 day_of_week = date.dayofweek
 month = date.month
