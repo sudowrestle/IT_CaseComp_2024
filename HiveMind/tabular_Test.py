@@ -38,13 +38,13 @@ prediction_df = pd.DataFrame(
 columns_to_keep = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit', 'Quantity', 'DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'IsWeekend']
 df = df[columns_to_keep]
 
-dls = TabularDataLoaders.from_df(df, path='./', y_names="Quantity", 
+dls = TabularDataLoaders.from_df(df, path=rel_path, y_names="Quantity", 
     cat_names = ['Material', 'Plant', 'UnitofMeasure', 'DebitCredit',],
     cont_names = ['DayOfWeek', 'Month', 'DayOfYear', 'WeekOfYear', 'IsWeekend'],
     procs = [Categorify, FillMissing, Normalize]
     )
 
-learn = tabular_learner(dls, metrics=[rmse,mae], cbs=[ShowGraphCallback(),CSVLogger()])
+learn = tabular_learner(dls, metrics=[rmse,mae], cbs=[ShowGraphCallback()])
 
 demoMode = input().lower()
 
@@ -58,8 +58,13 @@ if demoMode == "demo2":
 
 if demoMode == "demo3":
     learn.fit_one_cycle(100)
-    learn.save('temp')
-    learn.export('PermaModel/TrainedExport.pkl')
+    learn.save('TrainedWeights')
+    learn.export(rel_path + '/PermaModel/TrainedExport.pkl')
+
+if demoMode == "demo4":
+    learn = load_learner(rel_path + '/PermaModel/TrainedExport.pkl')
+    learn.dls = dls
+    learn.load('TrainedWeights')
 
 learn.show_results(max_n=64)
 row, tensorVal, probs = learn.predict(prediction_df.iloc[0])
